@@ -44,6 +44,7 @@ const ROOMS: Room[] = [
 export default function Office() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [agents, setAgents] = useState<OfficeAgent[]>([]);
+  const agentsRef = useRef<OfficeAgent[]>([]);
   const [activeRoom, setActiveRoom] = useState('main');
   const [showMetrics, setShowMetrics] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<OfficeAgent | null>(null);
@@ -51,42 +52,45 @@ export default function Office() {
 
   useEffect(() => {
     const loadAgents = async () => {
-      const data = await getAgents();
-      const newAgents: OfficeAgent[] = data.map((agent: Agent) => ({
-        id: agent.id,
-        name: agent.name,
-        role: agent.role,
-        status: agent.status || 'idle',
-        x: Math.random() * 400 + 100,
-        y: Math.random() * 250 + 100,
-        targetX: Math.random() * 400 + 100,
-        targetY: Math.random() * 250 + 100,
-        room: 'main',
-        completedTasks: 0,
-        taskDuration: 0,
-      }));
-      setAgents(newAgents);
+      try {
+        const data = await getAgents();
+        const newAgents: OfficeAgent[] = data.map((agent: Agent) => ({
+          id: agent.id,
+          name: agent.name,
+          role: agent.role,
+          status: agent.status || 'idle',
+          x: Math.random() * 400 + 100,
+          y: Math.random() * 250 + 100,
+          targetX: Math.random() * 400 + 100,
+          targetY: Math.random() * 250 + 100,
+          room: 'main',
+          completedTasks: 0,
+          taskDuration: 0,
+        }));
+        setAgents(newAgents);
+        agentsRef.current = newAgents;
+      } catch (error) {
+        console.error('Failed to load agents:', error);
+      }
     };
     loadAgents();
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws/office');
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.event === 'task_assigned') {
-        setAgents((prev) =>
-          prev.map((agent) =>
+    try {
+      const ws = new WebSocket('ws://localhost:8000/ws/office');
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.event === 'task_assigned') {
+          agentsRef.current = agentsRef.current.map((agent) =>
             agent.id === data.agent_id
               ? { ...agent, status: 'working', room: 'main', targetX: 200, targetY: 150 }
               : agent
-          )
-        );
-      } else if (data.event === 'agent_created') {
-        const newAgent = data.agent;
-        setAgents((prev) => [
-          ...prev,
-          {
+          );
+          setAgents([...agentsRef.current]);
+        } else if (data.event === 'agent_created') {
+          const newAgent = data.agent;
+          const officeAgent: OfficeAgent = {
             id: newAgent.id,
             name: newAgent.name,
             role: newAgent.role,
@@ -98,13 +102,25 @@ export default function Office() {
             room: 'main',
             completedTasks: 0,
             taskDuration: 0,
-          },
-        ]);
-      } else if (data.event === 'agent_deleted') {
-        setAgents((prev) => prev.filter((a) => a.id !== data.agent_id));
-      }
-    };
-    return () => ws.close();
+          };
+          agentsRef.current = [...agentsRef.current, officeAgent];
+          setAgents([...agentsRef.current]);
+        } else if (data.event === 'agent_deleted') {
+          agentsRef.current = agentsRef.current.filter((a) => a.id !== data.agent_id);
+          setAgents([...agentsRef.current]);
+        }
+      };
+      ws.onerror = () => console.error('WebSocket error');
+      return () => {
+        try {
+          ws.close();
+        } catch (e) {
+          console.error('Error closing WebSocket:', e);
+        }
+      };
+    } catch (error) {
+      console.error('Failed to establish WebSocket:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -141,39 +157,37 @@ export default function Office() {
         ctx.strokeRect(x - 25, y - 15, 50, 30);
       });
 
-      setAgents((prevAgents) =>
-        prevAgents.map((agent) => {
-          let targetRoom = agent.room;
-          if (agent.status === 'working') {
-            targetRoom = 'main';
-          } else if (agent.status === 'idle') {
-            targetRoom = 'lounge';
-          } else if (agent.status === 'thinking') {
-            targetRoom = 'research';
+      agentsRef.current = agentsRef.current.map((agent) => {
+        let targetRoom = agent.room;
+        if (agent.status === 'working') {
+          targetRoom = 'main';
+        } else if (agent.status === 'idle') {
+          targetRoom = 'lounge';
+        } else if (agent.status === 'thinking') {
+          targetRoom = 'research';
+        }
+        agent.room = targetRoom;
+
+        const dx = agent.targetX - agent.x;
+        const dy = agent.targetY - agent.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 2) {
+          const speed = 1.5;
+          agent.x += (dx / distance) * speed;
+          agent.y += (dy / distance) * speed;
+        } else if (agent.status === 'idle') {
+          if (distance < 10) {
+            const lounge = ROOMS[3];
+            agent.targetX = Math.random() * (lounge.width - 60) + lounge.x + 30;
+            agent.targetY = Math.random() * (lounge.height - 60) + lounge.y + 30;
           }
-          agent.room = targetRoom;
+        }
 
-          const dx = agent.targetX - agent.x;
-          const dy = agent.targetY - agent.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+        return agent;
+      });
 
-          if (distance > 2) {
-            const speed = 1.5;
-            agent.x += (dx / distance) * speed;
-            agent.y += (dy / distance) * speed;
-          } else if (agent.status === 'idle') {
-            if (distance < 10) {
-              const lounge = ROOMS[3];
-              agent.targetX = Math.random() * (lounge.width - 60) + lounge.x + 30;
-              agent.targetY = Math.random() * (lounge.height - 60) + lounge.y + 30;
-            }
-          }
-
-          return agent;
-        })
-      );
-
-      agents.forEach((agent) => {
+      agentsRef.current.forEach((agent) => {
         const colorMap: { [key: string]: string } = {
           working: '#ef4444',
           thinking: '#f59e0b',
@@ -202,7 +216,7 @@ export default function Office() {
       });
 
       if (showMetrics) {
-        drawMetricsOverlay(ctx, agents);
+        drawMetricsOverlay(ctx, agentsRef.current);
       }
 
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -214,7 +228,7 @@ export default function Office() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [agents, showMetrics]);
+  }, [showMetrics]);
 
   const drawMetricsOverlay = (ctx: CanvasRenderingContext2D, agentList: OfficeAgent[]) => {
     const metricsRoom = ROOMS[5];
