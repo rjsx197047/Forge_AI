@@ -188,3 +188,66 @@ def health_check():
         "agents": len(agent_manager.get_agents()),
         "outputs": len(output_manager.get_outputs())
     }
+
+# ---- Agent Stats Endpoint ----
+@app.get("/agents/{agent_id}/stats")
+def get_agent_stats(agent_id: str):
+    stats = agent_manager.get_agent_stats(agent_id)
+    if not stats:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    return stats
+
+# ---- Telegram Endpoints ----
+class TelegramMessage(BaseModel):
+    chat_id: str
+    message: str
+    user_id: str = None
+
+@app.post("/telegram/message")
+async def handle_telegram_message(request: TelegramMessage):
+    """Handle incoming Telegram messages"""
+    global telegram_bot
+    
+    if not telegram_bot:
+        # Initialize Telegram bot if not already done
+        telegram_token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if telegram_token:
+            telegram_bot = TelegramBot(telegram_token, agent_manager, output_manager, websocket_manager)
+        else:
+            raise HTTPException(status_code=400, detail="Telegram bot not configured")
+    
+    try:
+        response = await telegram_bot.handle_message(
+            request.chat_id,
+            request.message,
+            request.user_id
+        )
+        return {"success": True, "response": response}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/telegram/agents")
+def telegram_get_agents():
+    """API endpoint for Telegram to fetch agent list"""
+    agents = agent_manager.get_agents()
+    return {
+        "agents": [
+            {
+                "id": a.id,
+                "name": a.name,
+                "role": a.role,
+                "status": a.status,
+                "tasks_queued": len(a.task_queue)
+            }
+            for a in agents
+        ]
+    }
+
+@app.get("/telegram/status")
+def health_check():
+    return {
+        "status": "healthy",
+        "agents_count": len(agent_manager.get_agents()),
+        "outputs_count": len(output_manager.get_outputs()),
+        "telegram_connected": telegram_bot is not None
+    }
