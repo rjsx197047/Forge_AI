@@ -1,19 +1,19 @@
-# Forge AI — Intelligent Agent Workforce Platform
+# Forge AI — Intelligent Agent Workforce Platform with Ollama
 
-![Forge AI Logo](https://img.shields.io/badge/Forge%20AI-Agent%20Platform-blue)
+![Forge AI Logo](https://img.shields.io/badge/Forge%20AI-Ollama%20Powered-blue)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-> **A comprehensive AI workforce management platform with real-time visualization, agent task orchestration, and Telegram integration — all wrapped in an intuitive "Pixel Office" interface.**
+> **A comprehensive AI workforce management platform powered by Ollama — your local, open-source AI models — with real-time visualization, agent task orchestration, and Telegram integration — all wrapped in an intuitive "Pixel Office" interface.**
 
 ---
 
 ## Overview
 
-Forge AI is a sophisticated platform for creating, managing, and visualizing autonomous AI agents. Instead of traditional dashboards, agents are represented as workers in a simulated office environment where their status and activity become immediately clear through visual metaphors.
+Forge AI is a sophisticated platform for creating, managing, and visualizing autonomous AI agents powered by Ollama — a local, privacy-first AI engine. Instead of relying on cloud-based AI services, Forge AI runs directly on your machine with open-source models like Llama 2, Mistral, and Neural Chat. Agents are represented as workers in a simulated office environment where their status and activity become immediately clear through visual metaphors.
 
 **Key Capabilities:**
-- Create and manage multiple AI agents with custom roles
+- Create and manage multiple AI agents with Ollama open-source models
 - Real-time agent monitoring through interactive Dashboard
 - Multi-room Pixel Office visualization with live agent animation
 - Comprehensive Outputs manager for task reports and deliverables
@@ -21,6 +21,7 @@ Forge AI is a sophisticated platform for creating, managing, and visualizing aut
 - Agent memory system with task history and statistics
 - Telegram integration for remote agent control
 - Dark mode support for comfortable viewing
+- Privacy-first: All AI inference runs locally on your machine
 
 ---
 
@@ -71,12 +72,31 @@ Forge_AI/
 
 ---
 
+## Ollama Setup
+
+Before running Forge AI, install and start Ollama:
+
+1. **Download Ollama**: Visit https://ollama.ai and download for your OS
+2. **Install and Run**: Follow the installation instructions
+3. **Pull Models**: In a terminal, download models:
+   ```bash
+   ollama pull llama2      # Default model (~4GB)
+   ollama pull mistral     # Fast and efficient (~5GB)
+   ollama pull neural-chat # Conversation optimized (~4GB)
+   ```
+4. **Verify**: Ollama should be running on `localhost:11434`
+
+Ollama will keep models in memory and serve them via REST API at `http://localhost:11434`
+
+---
+
 ## Quick Start
 
 ### Prerequisites
 - **Python 3.12+** with conda
 - **Node.js 20+** with npm
 - **Git** for version control
+- **Ollama** installed and running (download from https://ollama.ai)
 
 ### Backend Setup
 
@@ -143,9 +163,13 @@ Access the complete UI at **http://localhost:3000**
 
 ### Agents
 - `GET /agents` — List all agents
-- `POST /agents` — Create new agent
+- `POST /agents` — Create new agent with Ollama model
 - `GET /agents/{id}` — Get agent details
 - `GET /agents/{id}/stats` — Get agent statistics with memory data
+
+### Ollama Models
+- `GET /ollama/models` — List available Ollama models
+- `GET /ollama/status` — Check Ollama connection status
 
 ### Tasks
 - `POST /tasks` — Assign task to agent
@@ -279,6 +303,7 @@ Agents are stored in `backend/agents/{agent_id}/config.json`:
 - **Server:** Uvicorn 0.24.0
 - **Validation:** Pydantic 2.5.0
 - **Language:** Python 3.12
+- **AI Engine:** Ollama (open-source LLM running locally)
 - **Real-time:** WebSocket support
 
 ### Frontend Stack
@@ -399,6 +424,7 @@ Built with modern tools using:
 - Next.js for modern frontend experience
 - TailwindCSS for beautiful styling
 - WebSocket for real-time updates
+- Ollama for privacy-first local AI inference
 
 ---
 

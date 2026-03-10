@@ -6,12 +6,14 @@ import { Agent } from '@/types';
 
 export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [ollamas, setOllamas] = useState<string[]>(['llama2', 'mistral', 'neural-chat']);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newAgent, setNewAgent] = useState({ name: '', role: '', model: 'gpt' });
+  const [newAgent, setNewAgent] = useState({ name: '', role: '', model: 'llama2' });
   const [taskInputs, setTaskInputs] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     loadAgents();
+    fetchOllamaModels();
   }, []);
 
   const loadAgents = async () => {
@@ -19,10 +21,22 @@ export default function Dashboard() {
     setAgents(data);
   };
 
+  const fetchOllamaModels = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/ollama/models');
+      const data = await response.json();
+      if (data.models && data.models.length > 0) {
+        setOllamas(data.models);
+      }
+    } catch (error) {
+      console.warn('Could not fetch Ollama models. Using defaults.', error);
+    }
+  };
+
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
     await createAgent(newAgent);
-    setNewAgent({ name: '', role: '', model: 'gpt' });
+    setNewAgent({ name: '', role: '', model: 'llama2' });
     setShowCreateForm(false);
     loadAgents();
   };
@@ -57,10 +71,17 @@ export default function Dashboard() {
         </button>
       </div>
 
+      {/* Ollama Info Banner */}
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          Powered by Ollama AI - Your local, open-source AI models. Available models: {ollamas.join(', ')}
+        </p>
+      </div>
+
       {showCreateForm && (
         <div className="fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-70 overflow-y-auto h-full w-full" onClick={() => setShowCreateForm(false)}>
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Create New Agent</h3>
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Create New Agent with Ollama AI</h3>
             <form onSubmit={handleCreateAgent}>
               <div className="mb-4">
                 <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Name</label>
@@ -83,14 +104,17 @@ export default function Dashboard() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Model</label>
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Ollama Model</label>
                 <select
                   value={newAgent.model}
                   onChange={(e) => setNewAgent({ ...newAgent, model: e.target.value })}
                   className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
-                  <option value="gpt">GPT</option>
-                  <option value="claude">Claude</option>
+                  {ollamas.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex justify-end">

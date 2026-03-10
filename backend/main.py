@@ -8,6 +8,7 @@ from core.websocket_manager import websocket_manager
 from core.telegram_bot import TelegramBot
 from core.scheduler import Scheduler
 from core.tool_manager import ToolManager
+from core.ollama_integration import OllamaIntegration
 from pydantic import BaseModel
 import asyncio
 import os
@@ -46,7 +47,16 @@ class ToolRequest(BaseModel):
 async def lifespan(app: FastAPI):
     # Startup
     global scheduler, telegram_bot
-    print("Starting Pulse AI Backend...")
+    print("Starting Forge AI Backend with Ollama AI...")
+    
+    # Check Ollama connection
+    from core.ollama_integration import ollama_integration
+    ollama_ready = await ollama_integration.check_connection()
+    if ollama_ready:
+        models = await ollama_integration.get_available_models()
+        print(f"Ollama connected. Available models: {models}")
+    else:
+        print("Warning: Ollama not detected on localhost:11434. Please install and start Ollama.")
     
     try:
         asyncio.create_task(orchestrator.run())
@@ -64,14 +74,14 @@ async def lifespan(app: FastAPI):
     #     telegram_bot = TelegramBot(telegram_token, agent_manager, output_manager)
     #     asyncio.create_task(telegram_bot.run())
     
-    print("Pulse AI Backend startup complete")
+    print("Forge AI Backend startup complete")
     yield
     
     # Shutdown
-    print("Shutting down Pulse AI Backend")
+    print("Shutting down Forge AI Backend")
 
 # Initialize FastAPI with CORS and lifespan
-app = FastAPI(title="Pulse AI Backend", lifespan=lifespan)
+app = FastAPI(title="Forge AI Backend - Powered by Ollama", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -120,6 +130,28 @@ def delete_agent(agent_id: str):
         "agent_id": agent_id
     }))
     return {"message": "Agent deleted"}
+
+# ---- Ollama AI Endpoints ----
+@app.get("/ollama/models")
+async def get_ollama_models():
+    """Get list of available Ollama models"""
+    models = await ollama_integration.get_available_models()
+    return {
+        "models": models,
+        "status": "connected" if models else "disconnected",
+        "message": "Ollama AI models available" if models else "Ollama not responding. Install from https://ollama.ai"
+    }
+
+@app.get("/ollama/status")
+async def get_ollama_status():
+    """Check Ollama connection status"""
+    is_connected = await ollama_integration.check_connection()
+    models = await ollama_integration.get_available_models() if is_connected else []
+    return {
+        "connected": is_connected,
+        "models": models,
+        "endpoint": ollama_integration.base_url
+    }
 
 # ---- Task Endpoints ----
 @app.post("/tasks")

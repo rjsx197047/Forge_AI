@@ -84,8 +84,11 @@ class AgentManager:
             json.dump(agent_data, f, indent=2)
 
     def create_agent(self, name: str, role: str, model: str) -> Agent:
-        """Create a new agent"""
+        """Create a new agent with Ollama AI"""
         agent_id = name.lower().replace(" ", "_")
+        # Support for Ollama models: llama2, mistral, neural-chat, starling-lm, etc.
+        if not model:
+            model = "llama2"  # Default to Ollama's llama2
         agent = Agent(
             id=agent_id,
             name=name,
