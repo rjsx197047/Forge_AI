@@ -58,13 +58,16 @@ export default function Dashboard() {
     const task = taskInputs[agentId];
     if (task) {
       try {
+        console.log(`Assigning task to agent: ${agentId}`, { agent_id: agentId, task });
         await assignTask({ agent_id: agentId, task });
         setTaskInputs({ ...taskInputs, [agentId]: '' });
         await loadAgents();
       } catch (error) {
         console.error('Failed to assign task:', error);
-        alert('Failed to assign task');
+        alert('Failed to assign task. Check console for details.');
       }
+    } else {
+      alert('Please enter a task description');
     }
   };
 
