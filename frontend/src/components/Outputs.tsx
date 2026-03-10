@@ -18,15 +18,25 @@ export default function Outputs() {
   }, []);
 
   const loadOutputs = async () => {
-    const data = await getOutputs();
-    setOutputs(data);
+    try {
+      const data = await getOutputs();
+      setOutputs(data || {});
+    } catch (error) {
+      console.error('Failed to load outputs:', error);
+      setOutputs({});
+    }
   };
 
   const handleFileClick = async (agent: string, filename: string) => {
-    setSelectedAgent(agent);
-    setSelectedFile(filename);
-    const data = await getOutputContent(agent, filename);
-    setFileContent(data.content);
+    try {
+      setSelectedAgent(agent);
+      setSelectedFile(filename);
+      const data = await getOutputContent(agent, filename);
+      setFileContent(data?.content || 'Could not load file content');
+    } catch (error) {
+      console.error('Failed to load file:', error);
+      setFileContent('Error loading file content');
+    }
   };
 
   const handleSendToTelegram = () => {

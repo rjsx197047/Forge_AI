@@ -1,0 +1,19 @@
+{
+  "id": "pokemon",
+  "name": "Pokemon",
+  "role": "Get info on pokemon",
+  "model": "llama2",
+  "status": "idle",
+  "task_queue": [],
+  "memory": "",
+  "created_at": "2026-03-09T19:24:08.536263",
+  "last_activity": "2026-03-09T19:24:08.536305",
+  "memory_data": {
+    "skills": [],
+    "task_history": [],
+    "total_tasks_completed": 0,
+    "avg_task_duration": 0.0,
+    "success_rate": 100.0,
+    "specializations": {}
+  }
+}

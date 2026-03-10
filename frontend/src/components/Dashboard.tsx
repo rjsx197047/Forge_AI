@@ -24,29 +24,47 @@ export default function Dashboard() {
   const fetchOllamaModels = async () => {
     try {
       const response = await fetch('http://localhost:8000/ollama/models');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       if (data.models && data.models.length > 0) {
         setOllamas(data.models);
+      } else {
+        console.warn('No Ollama models available. Make sure Ollama is running.');
       }
     } catch (error) {
       console.warn('Could not fetch Ollama models. Using defaults.', error);
+      setOllamas(['llama2', 'mistral', 'neural-chat']);
     }
   };
 
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createAgent(newAgent);
-    setNewAgent({ name: '', role: '', model: 'llama2' });
-    setShowCreateForm(false);
-    loadAgents();
+    try {
+      if (!newAgent.name || !newAgent.role) {
+        alert('Please fill in all fields');
+        return;
+      }
+      await createAgent(newAgent);
+      setNewAgent({ name: '', role: '', model: 'llama2' });
+      setShowCreateForm(false);
+      await loadAgents();
+    } catch (error) {
+      console.error('Failed to create agent:', error);
+      alert('Failed to create agent. Make sure backend is running on port 8000.');
+    }
   };
 
   const handleAssignTask = async (agentId: string) => {
     const task = taskInputs[agentId];
     if (task) {
-      await assignTask({ agent_id: agentId, task });
-      setTaskInputs({ ...taskInputs, [agentId]: '' });
-      loadAgents();
+      try {
+        await assignTask({ agent_id: agentId, task });
+        setTaskInputs({ ...taskInputs, [agentId]: '' });
+        await loadAgents();
+      } catch (error) {
+        console.error('Failed to assign task:', error);
+        alert('Failed to assign task');
+      }
     }
   };
 
