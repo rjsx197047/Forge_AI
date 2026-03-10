@@ -1,5 +1,6 @@
 from core.agent_manager import AgentManager
 from core.output_manager import OutputManager
+from core.ollama_integration import ollama_integration
 import asyncio
 import time
 from datetime import datetime
@@ -18,10 +19,25 @@ class Orchestrator:
                 task = agent.task_queue.pop(0)
                 agent.status = "working"
                 self.agent_manager.save_agent(agent)
-                # Simulate task execution
-                await asyncio.sleep(5)  # Simulate work
-                # Save output
-                content = f"# Task Report\n\nTask: {task}\n\nCompleted at {datetime.now()}\n\n[Simulated output]"
+                
+                # Execute task with Ollama AI
+                try:
+                    system_prompt = f"You are a {agent.role} assistant. Provide a detailed and helpful response."
+                    response = await ollama_integration.generate_response(
+                        model=agent.model,
+                        prompt=task,
+                        system_prompt=system_prompt,
+                        temperature=0.7,
+                        max_tokens=1024
+                    )
+                    
+                    # Save output with Ollama response
+                    content = f"# Task Report - {agent.name}\n\n## Task\n{task}\n\n## Response\n{response}\n\n## Metadata\n- Model: {agent.model}\n- Agent: {agent.name}\n- Role: {agent.role}\n- Completed: {datetime.now().isoformat()}"
+                except Exception as e:
+                    print(f"[Orchestrator] Error executing task with Ollama: {e}")
+                    response = f"Error executing task with Ollama: {str(e)}"
+                    content = f"# Task Report - {agent.name}\n\n## Task\n{task}\n\n## Error\n{response}\n\n## Metadata\n- Model: {agent.model}\n- Agent: {agent.name}\n- Completed: {datetime.now().isoformat()}"
+                
                 task_id = f"{int(time.time())}"
                 self.output_manager.save_output(agent.name.lower(), task_id, content)
                 agent.status = "idle"
