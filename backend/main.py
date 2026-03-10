@@ -103,12 +103,12 @@ async def office_websocket(websocket: WebSocket):
 
 # ---- Agent Endpoints ----
 @app.post("/agents")
-def create_agent(request: CreateAgentRequest):
+async def create_agent(request: CreateAgentRequest):
     agent = agent_manager.create_agent(request.name, request.role, request.model)
-    asyncio.create_task(websocket_manager.broadcast({
+    await websocket_manager.broadcast({
         "event": "agent_created",
         "agent": agent.dict()
-    }))
+    })
     return agent.dict()
 
 @app.get("/agents")
@@ -123,12 +123,12 @@ def get_agent(agent_id: str):
     return agent.dict()
 
 @app.delete("/agents/{agent_id}")
-def delete_agent(agent_id: str):
+async def delete_agent(agent_id: str):
     agent_manager.delete_agent(agent_id)
-    asyncio.create_task(websocket_manager.broadcast({
+    await websocket_manager.broadcast({
         "event": "agent_deleted",
         "agent_id": agent_id
-    }))
+    })
     return {"message": "Agent deleted"}
 
 # ---- Ollama AI Endpoints ----
@@ -155,7 +155,7 @@ async def get_ollama_status():
 
 # ---- Task Endpoints ----
 @app.post("/tasks")
-def assign_task(request: AssignTaskRequest):
+async def assign_task(request: AssignTaskRequest):
     """Assign a task to an agent"""
     try:
         agent = agent_manager.get_agent(request.agent_id)
@@ -163,11 +163,11 @@ def assign_task(request: AssignTaskRequest):
             raise HTTPException(status_code=404, detail=f"Agent '{request.agent_id}' not found")
         
         agent_manager.assign_task(request.agent_id, request.task)
-        asyncio.create_task(websocket_manager.broadcast({
+        await websocket_manager.broadcast({
             "event": "task_assigned",
             "agent_id": request.agent_id,
             "task": request.task
-        }))
+        })
         return {"message": "Task assigned", "agent_id": request.agent_id, "task": request.task}
     except HTTPException:
         raise
