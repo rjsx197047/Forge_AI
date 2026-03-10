@@ -156,13 +156,24 @@ async def get_ollama_status():
 # ---- Task Endpoints ----
 @app.post("/tasks")
 def assign_task(request: AssignTaskRequest):
-    agent_manager.assign_task(request.agent_id, request.task)
-    asyncio.create_task(websocket_manager.broadcast({
-        "event": "task_assigned",
-        "agent_id": request.agent_id,
-        "task": request.task
-    }))
-    return {"message": "Task assigned"}
+    """Assign a task to an agent"""
+    try:
+        agent = agent_manager.get_agent(request.agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail=f"Agent '{request.agent_id}' not found")
+        
+        agent_manager.assign_task(request.agent_id, request.task)
+        asyncio.create_task(websocket_manager.broadcast({
+            "event": "task_assigned",
+            "agent_id": request.agent_id,
+            "task": request.task
+        }))
+        return {"message": "Task assigned", "agent_id": request.agent_id, "task": request.task}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Tasks] Error assigning task: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to assign task: {str(e)}")
 
 # ---- Schedule Endpoints ----
 @app.post("/schedules")
