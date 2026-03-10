@@ -1,6 +1,6 @@
-# Pulse AI — Intelligent Agent Workforce Platform
+# Forge AI — Intelligent Agent Workforce Platform
 
-![Pulse AI Logo](https://img.shields.io/badge/Pulse%20AI-Agent%20Platform-blue)
+![Forge AI Logo](https://img.shields.io/badge/Forge%20AI-Agent%20Platform-blue)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Pulse AI is a sophisticated platform for creating, managing, and visualizing autonomous AI agents. Instead of traditional dashboards, agents are represented as workers in a simulated office environment where their status and activity become immediately clear through visual metaphors.
+Forge AI is a sophisticated platform for creating, managing, and visualizing autonomous AI agents. Instead of traditional dashboards, agents are represented as workers in a simulated office environment where their status and activity become immediately clear through visual metaphors.
 
 **Key Capabilities:**
 - 🤖 Create and manage multiple AI agents with custom roles
@@ -386,7 +386,7 @@ MIT License — See [LICENSE](./LICENSE) file for details
 ## Support
 
 For issues, questions, or suggestions:
-- 📧 Email: support@pulseai.dev
+- 📧 Email: support@forgeai.dev
 - 🐛 Bug Reports: [GitHub Issues](https://github.com/yourusername/Forge_AI/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/Forge_AI/discussions)
 
