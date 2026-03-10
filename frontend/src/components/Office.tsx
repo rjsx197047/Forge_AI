@@ -267,10 +267,10 @@ export default function Office() {
     <div className="px-4 py-6 sm:px-0">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Pixel Office - Multi-Room</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Pixel Office - Multi-Room</h2>
           <button
             onClick={() => setShowMetrics(!showMetrics)}
-            className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
+            className="px-3 py-1 bg-indigo-600 dark:bg-indigo-700 text-white rounded text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
           >
             {showMetrics ? '📊 Hide' : '📊 Show'} Metrics
           </button>
@@ -283,8 +283,8 @@ export default function Office() {
               onClick={() => setActiveRoom(room.id)}
               className={`px-2 py-1 text-xs rounded font-medium transition ${
                 activeRoom === room.id
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               {room.name}
@@ -295,24 +295,24 @@ export default function Office() {
         <div className="flex gap-4 mb-4 flex-wrap">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">Idle</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Idle</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-amber-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">Thinking</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Thinking</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">Working</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Working</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-indigo-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">Complete</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Complete</span>
           </div>
         </div>
       </div>
 
-      <div className="border border-gray-300 rounded-lg overflow-hidden bg-white mb-6">
+      <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800 mb-6 dark:shadow-lg">
         <canvas
           ref={canvasRef}
           width={CANVAS_WIDTH}
@@ -322,8 +322,8 @@ export default function Office() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-3">👥 Active Agents ({agents.length})</h3>
+        <div className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg dark:shadow-lg">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">👥 Active Agents ({agents.length})</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {agents.map((agent) => (
               <button
@@ -331,8 +331,8 @@ export default function Office() {
                 onClick={() => setSelectedAgent(agent)}
                 className={`w-full text-left p-2 rounded text-sm transition ${
                   selectedAgent?.id === agent.id
-                    ? 'bg-indigo-100 border border-indigo-500'
-                    : 'bg-gray-50 hover:bg-gray-100'
+                    ? 'bg-indigo-100 dark:bg-indigo-900 border border-indigo-500 dark:border-indigo-400 text-gray-900 dark:text-white'
+                    : 'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -349,26 +349,26 @@ export default function Office() {
                   ></div>
                   <span className="font-medium">{agent.name}</span>
                 </div>
-                <div className="text-xs text-gray-500 ml-4">{agent.role}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 ml-4">{agent.role}</div>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-3">🏢 Office Rooms</h3>
+        <div className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg dark:shadow-lg">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">🏢 Office Rooms</h3>
           <div className="space-y-2">
             {ROOMS.map((room) => {
               const roomAgents = agents.filter((a) => a.room === room.id);
               return (
                 <div
                   key={room.id}
-                  className="p-2 bg-gray-50 rounded text-sm cursor-pointer hover:bg-gray-100"
+                  className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                   onClick={() => setActiveRoom(room.id)}
                 >
                   <div className="flex justify-between items-center">
-                    <div className="font-medium text-gray-900">{room.name}</div>
-                    <div className="bg-indigo-600 text-white text-xs rounded-full px-2 py-0.5">
+                    <div className="font-medium text-gray-900 dark:text-white">{room.name}</div>
+                    <div className="bg-indigo-600 dark:bg-indigo-700 text-white text-xs rounded-full px-2 py-0.5">
                       {roomAgents.length}
                     </div>
                   </div>
@@ -379,38 +379,38 @@ export default function Office() {
         </div>
 
         {selectedAgent && (
-          <div className="bg-white p-4 border border-indigo-300 rounded-lg bg-indigo-50">
-            <h3 className="font-semibold text-gray-900 mb-3">📋 Agent Details</h3>
+          <div className="bg-white dark:bg-gray-800 p-4 border border-indigo-300 dark:border-indigo-700 rounded-lg bg-indigo-50 dark:bg-indigo-900 dark:bg-opacity-20 dark:shadow-lg">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">📋 Agent Details</h3>
             <div className="space-y-2 text-sm">
               <div>
-                <div className="text-gray-600 text-xs">Name</div>
-                <div className="font-medium text-lg">{selectedAgent.name}</div>
+                <div className="text-gray-600 dark:text-gray-400 text-xs">Name</div>
+                <div className="font-medium text-lg text-gray-900 dark:text-white">{selectedAgent.name}</div>
               </div>
               <div>
-                <div className="text-gray-600 text-xs">Role</div>
-                <div className="font-medium">{selectedAgent.role}</div>
+                <div className="text-gray-600 dark:text-gray-400 text-xs">Role</div>
+                <div className="font-medium text-gray-900 dark:text-white">{selectedAgent.role}</div>
               </div>
               <div className="flex gap-4">
                 <div>
-                  <div className="text-gray-600 text-xs">Status</div>
-                  <div className="font-medium capitalize text-indigo-600">{selectedAgent.status}</div>
+                  <div className="text-gray-600 dark:text-gray-400 text-xs">Status</div>
+                  <div className="font-medium capitalize text-indigo-600 dark:text-indigo-400">{selectedAgent.status}</div>
                 </div>
                 <div>
-                  <div className="text-gray-600 text-xs">Room</div>
-                  <div className="font-medium">
+                  <div className="text-gray-600 dark:text-gray-400 text-xs">Room</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
                     {ROOMS.find((r) => r.id === selectedAgent.room)?.name}
                   </div>
                 </div>
               </div>
               <div>
-                <div className="text-gray-600 text-xs">Position</div>
-                <div className="font-mono text-xs bg-white p-1 rounded">
+                <div className="text-gray-600 dark:text-gray-400 text-xs">Position</div>
+                <div className="font-mono text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-1 rounded">
                   ({selectedAgent.x.toFixed(0)}, {selectedAgent.y.toFixed(0)})
                 </div>
               </div>
-              <div className="pt-2 border-t">
-                <div className="text-gray-600 text-xs">Tasks Completed</div>
-                <div className="text-2xl font-bold text-indigo-600">{selectedAgent.completedTasks || 0}</div>
+              <div className="pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                <div className="text-gray-600 dark:text-gray-400 text-xs">Tasks Completed</div>
+                <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{selectedAgent.completedTasks || 0}</div>
               </div>
             </div>
           </div>
