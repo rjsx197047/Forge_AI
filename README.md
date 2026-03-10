@@ -13,14 +13,14 @@
 Forge AI is a sophisticated platform for creating, managing, and visualizing autonomous AI agents. Instead of traditional dashboards, agents are represented as workers in a simulated office environment where their status and activity become immediately clear through visual metaphors.
 
 **Key Capabilities:**
-- 🤖 Create and manage multiple AI agents with custom roles
-- 📊 Real-time agent monitoring through interactive Dashboard
-- 🏢 Multi-room Pixel Office visualization with live agent animation
-- 📄 Comprehensive Outputs manager for task reports and deliverables
-- 🚀 Task assignment and execution tracking
-- 💾 Agent memory system with task history and statistics
-- 📱 Telegram integration for remote agent control
-- 🌙 Dark mode support for comfortable viewing
+- Create and manage multiple AI agents with custom roles
+- Real-time agent monitoring through interactive Dashboard
+- Multi-room Pixel Office visualization with live agent animation
+- Comprehensive Outputs manager for task reports and deliverables
+- Task assignment and execution tracking
+- Agent memory system with task history and statistics
+- Telegram integration for remote agent control
+- Dark mode support for comfortable viewing
 
 ---
 
@@ -134,8 +134,8 @@ Access the complete UI at **http://localhost:3000**
 - **Performance Metrics** — Toggle display of completion stats
 
 #### Theme Toggle
-- **Light Mode** ☀️ — Clean, bright interface
-- **Dark Mode** 🌙 — Eye-friendly dark theme with persistent preference
+- **Light Mode** — Clean, bright interface
+- **Dark Mode** — Eye-friendly dark theme with persistent preference
 
 ---
 
@@ -394,7 +394,7 @@ For issues, questions, or suggestions:
 
 ## Acknowledgments
 
-Built with ❤️ using:
+Built with modern tools using:
 - FastAPI for robust backend architecture
 - Next.js for modern frontend experience
 - TailwindCSS for beautiful styling
